@@ -70,9 +70,9 @@ char *getUserSalt(char *username) {
 // Working on this right now
 char *genPass(int size) {
     char password[size+1];
-    for (int i=0; i<size; i++) {
+    // for (int i=0; i<size; i++) {
 
-    }
+    // }
     return password;
 }
 
@@ -199,8 +199,11 @@ int main() {
 
                 newUser(sessionUser, sessionPass, sessionSalt);
                 
+                char path[35];
+                snprintf(path, sizeof(path), "users/%s.txt", username);
+
                 FILE *fptr;
-                fptr = fopen(strcat(username, ".txt"), "w");
+                fptr = fopen(path, "w");
                 fclose(fptr);
 
                 printf("User succesfully created!\n");
@@ -239,7 +242,7 @@ int main() {
             
             char passChoice[2];
             printf("Should your password be generated? (Y/n)");
-            scanf("&c", passChoice);
+            scanf("&1c", passChoice);
             if (strcmp(passChoice, "Y")==0 || strcmp(passChoice, "y")==0) {
 
             } else {
