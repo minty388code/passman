@@ -67,12 +67,15 @@ char *getUserSalt(char *username) {
     return "Error - username was not found";
 }
 
-// Working on this right now
 char *genPass(int size) {
-    char password[size+1];
-    // for (int i=0; i<size; i++) {
-
-    // }
+    char chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%%^&*()[]{}\"'|,./<>?;:";
+    int len = strlen(chars);
+    char *password = malloc(size+1);
+    for (int i=0; i<size; i++) {
+        int ind = rand() % len;
+        password[i] = chars[ind];
+    }
+    password[size] = '\0';
     return password;
 }
 
@@ -99,7 +102,7 @@ void getPassword(char *password, size_t size) {
                 i--;
                 printf("\b \b");  // erase last *
             }
-        // Probably need to fix something here so that you cant enter anything other than a literal
+        // Probably need to fix something here so that cant enter anything other than a literal
         } else if (i < size - 1 && ch != 0 && ch != 224) {
             password[i++] = ch;
             printf("*");
@@ -217,6 +220,10 @@ int main() {
     // ? Now need to start creating the actual password manager 
     // printf("\nFor current session:\nUsername: %s, Password: %s, Salt: %s.\n", sessionUser, sessionPass, sessionSalt);
 
+    char sessionPath[35];
+    snprintf(sessionPath, sizeof(sessionPath), "users/%s.txt", sessionUser);
+            
+
     while (1) {
         char i[7];
         printf("%s: ", sessionUser);
@@ -232,27 +239,54 @@ int main() {
         eentry - edit a password entry\n\
         dentry - delete a password entry\n\n");
         } else if (strcmp(i, "eentry")==0) {
-            char *userfile;
-            strcpy(userfile, sessionUser);
-            strcat(userfile, ".txt");
-            
-            char *entryname;
+            // ! Have to add checking whether the entry already exists or not
+            char entryname[25];
             printf("Enter entry name: ");
-            scanf("%s", &entryname);
-            
-            char passChoice[2];
-            printf("Should your password be generated? (Y/n)");
-            scanf("&1c", passChoice);
-            if (strcmp(passChoice, "Y")==0 || strcmp(passChoice, "y")==0) {
+            scanf("%s", entryname);
 
+            char passChoice;
+            printf("Should your password be generated? (Y/n): ");
+            scanf(" %c", &passChoice);
+            if (passChoice == 'n') {
+                while (1) {
+                    char i1[25];
+                    char i2[25];
+
+                    printf("Enter password: ");
+                    getPassword(i1, sizeof(i1));
+                    
+                    printf("Please confirm password: ");
+                    getPassword(i2, sizeof(i2));
+                    
+                    if (strcmp(i1, i2) == 0) {
+                        FILE *fptr;
+                        fptr = fopen(sessionPath, "a");
+                        fprintf(fptr, "\n%s:%s", entryname, i1);
+                        
+                        fclose(fptr);
+                        break;
+                    } else {
+                        printf("Passwords do not match, please try again.\n");
+                    }
+                }
             } else {
+                int len;
+                printf("Enter password length: ");
+                scanf("%i", &len);
 
+                FILE *fptr;
+                fptr = fopen(sessionPath, "a");
+                fprintf(fptr, "\n%s:%s", entryname, genPass(len));
+                
+                fclose(fptr);
             }
+            printf("Entry succesfully created.\n\n");
 
         } else if (strcmp(i, "dentry")==0) {
-            printf("");
+            // Next step.
+            printf("Not created yet.");
         } else if (strcmp(i, "eentry")==0) {
-            printf("");
+            printf("Not created yet.");
         } else {
             printf("Command not found, for help enter command \"help\"\n\n");
         } 
